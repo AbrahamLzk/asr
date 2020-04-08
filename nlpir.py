@@ -52,7 +52,7 @@ class DFAFilter():
                     if self.delimit not in level[char]:
                         level = level[char]
                     else:
-                        result += char
+                        ret.append(repl * step_ins)
                         start += step_ins - 1
                         break
                 else:
@@ -62,8 +62,11 @@ class DFAFilter():
                 ret.append(message[start])
             start += 1
 
-        return ''.join(result)
+        return ''.join(ret)
 
+def strDiff(str1,str2):
+    tmp = {index:val for index,val in enumerate(str1) if len(str2)<=index or (len(str2)>index and not str2[index]==val)}
+    return "".join(tmp.values())
 
 if __name__ == '__main__':
     with open(str(sys.argv[1])+'\\time_data.txt', "r", encoding='utf-8') as file:
@@ -71,7 +74,7 @@ if __name__ == '__main__':
         print(temp)
         file.close()
     f = open(str(sys.argv[1])+'\\result1.txt', mode='r', encoding='utf-8')
-    for i in range(temp):
+    for i in range(int(temp)):
         text = f.readline()
         if text != '':
             pynlpir.open()  # 打开分词器
@@ -81,6 +84,7 @@ if __name__ == '__main__':
                     if str(t) != '，' and str(t) != '。' and str(t) != '？':
                         file.write(str(t))
                         file.write(str(','))
+                file.write('\n')
                 file.close()
             sentence = ''
             for t in pynlpir.segment(text, pos_tagging=False):
@@ -88,19 +92,23 @@ if __name__ == '__main__':
                     sentence += str(t)
                     sentence += ','
             pynlpir.close()
-            gfw = DFAFilter()
+            #gfw = DFAFilter()
             sensitive = ['色情','反动']
             for sen in sensitive:
                 path=os.getcwd()+'\\' +sen+ '.txt'
+                gfw = DFAFilter()
                 gfw.parse(path)
-                result = gfw.filter(sentence)
+                #result = gfw.filter(sentence)
+                result = gfw.filter(text)
                 #print(result)
-                if result != '':
-                    print(result)
-                    print('\n'+sen+'敏感词'+'，在第%s句'%(i,))
+                if result.find('*') != -1:
+                    #print(result)
+                    text_r = strDiff(text,result)
+                    print(text_r)
+                    print(sen+'敏感词'+'，在第%s句'%(i+1,))
                     with open(str(sys.argv[1])+'\\sen_words.txt', "a", encoding='utf-8') as file:
-                        file.write(result)
-                        file.write('：'+sen+'敏感词'+'，在第%s句'%(i,))
+                        file.write(text_r)
+                        file.write('：'+sen+'敏感词'+'，在第%s句\n'%(i+1,))
                         file.close()
     f.close()
     time2 = time.time()
