@@ -65,7 +65,7 @@ class DFAFilter():
 
 
 if __name__ == '__main__':
-    with open(p+'\\time_data.txt', "r", encoding='utf-8') as file:
+    with open(str(sys.argv[1])+'\\time_data.txt', "r", encoding='utf-8') as file:
         temp = file.readline()
         print(temp)
         file.close()
