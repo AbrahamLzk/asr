@@ -41,6 +41,7 @@ class DFAFilter():
     def filter(self, message, repl="*"):
         message = message.lower()
         ret = []
+        result = ''
         start = 0
         while start < len(message):
             level = self.keyword_chains
@@ -51,7 +52,7 @@ class DFAFilter():
                     if self.delimit not in level[char]:
                         level = level[char]
                     else:
-                        ret.append(repl * step_ins)
+                        result += char
                         start += step_ins - 1
                         break
                 else:
@@ -61,7 +62,7 @@ class DFAFilter():
                 ret.append(message[start])
             start += 1
 
-        return ''.join(ret)
+        return ''.join(result)
 
 
 if __name__ == '__main__':
@@ -75,12 +76,12 @@ if __name__ == '__main__':
         if text != '':
             pynlpir.open()  # 打开分词器
             #print(pynlpir.segment(text, pos_tagging=False))
-            with open(str(sys.argv[1])+'\\words.txt', "a", encoding='utf-8') as f:
+            with open(str(sys.argv[1])+'\\words.txt', "a", encoding='utf-8') as file:
                 for t in pynlpir.segment(text, pos_tagging=False):
                     if str(t) != '，' and str(t) != '。' and str(t) != '？':
-                        f.write(str(t))
-                        f.write(str(','))
-                f.close()
+                        file.write(str(t))
+                        file.write(str(','))
+                file.close()
             sentence = ''
             for t in pynlpir.segment(text, pos_tagging=False):
                 if str(t) != '，' and str(t) != '。' and str(t) != '？':
@@ -93,7 +94,14 @@ if __name__ == '__main__':
                 path=os.getcwd()+'\\' +sen+ '.txt'
                 gfw.parse(path)
                 result = gfw.filter(sentence)
-                print(result)
-                print('\n'+sen+'敏感词'+'，在第%s句'%(i,))
-            time2 = time.time()
-            print('总共耗时：' + str(time2 - time1) + 's')
+                #print(result)
+                if result != '':
+                    print(result)
+                    print('\n'+sen+'敏感词'+'，在第%s句'%(i,))
+                    with open(str(sys.argv[1])+'\\sen_words.txt', "a", encoding='utf-8') as file:
+                        file.write(result)
+                        file.write('：'+sen+'敏感词'+'，在第%s句'%(i,))
+                        file.close()
+    f.close()
+    time2 = time.time()
+    print('总共耗时：' + str(time2 - time1) + 's')
