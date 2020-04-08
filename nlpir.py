@@ -93,7 +93,7 @@ if __name__ == '__main__':
                     sentence += ','
             pynlpir.close()
             #gfw = DFAFilter()
-            sensitive = ['色情','反动']
+            sensitive = ['色情','反动','暴恐','民生','贪腐','其他']
             for sen in sensitive:
                 path=os.getcwd()+'\\' +sen+ '.txt'
                 gfw = DFAFilter()
@@ -103,7 +103,7 @@ if __name__ == '__main__':
                 #print(result)
                 if result.find('*') != -1:
                     #print(result)
-                    text_r = strDiff(text,result)
+                    text_r = strDiff(text.lower(),result)
                     print(text_r)
                     print(sen+'敏感词'+'，在第%s句'%(i+1,))
                     with open(str(sys.argv[1])+'\\sen_words.txt', "a", encoding='utf-8') as file:
