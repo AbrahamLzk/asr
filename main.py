@@ -96,7 +96,7 @@ class Production_Tool(Frame):
                               width=30)
         self.bt_stop.grid(row=6, column=2, rowspan=1, sticky=W)
 
-        self.bt_stop = Button(frame, text="敏感词审核", command=lambda: self.speech(self.file_path), bd=3,
+        self.bt_stop = Button(frame, text="敏感词审核", command=lambda: self.nlpir(self.p_path), bd=3,
                               width=30)
         self.bt_stop.grid(row=7, column=2, rowspan=1, sticky=W)
 
@@ -225,6 +225,27 @@ class Production_Tool(Frame):
             tkinter.messagebox.showwarning('提示', '请先进行语音分析')
             return
 
+    def nlpir(self, p=None):
+        if os.path.exists(p+'\\result.txt'):
+            self.text.insert(END, "\n正在进行敏感词审核，请勿关闭")
+            root.update()
+            if os.system("python nlpir.py %s"%(p,)) == 0:
+                #self.text.delete(END)
+                self.text.insert(END, "\n敏感词审核完成，分词存储位置:\n"+p+"\\words.txt")
+                
+                result = ''
+                with open(p+'\\words.txt', "r", encoding='utf-8') as file:
+                    result = file.read()
+                    file.close()
+                tkinter.messagebox.showinfo('知识点提取结果', result)                
+            else:
+                #self.text.delete(END)
+                self.text.insert(END, "\敏感词审核失败，请重试")
+                root.update()
+                return
+        else:
+            tkinter.messagebox.showwarning('提示', '请先进行语音分析')
+            return
 
 if __name__ == '__main__':
     # 软件版本号
