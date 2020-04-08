@@ -231,13 +231,15 @@ class Production_Tool(Frame):
             root.update()
             if os.system("python nlpir.py %s"%(p,)) == 0:
                 #self.text.delete(END)
-                self.text.insert(END, "\n敏感词审核完成，分词存储位置:\n"+p+"\\words.txt")
-                
-                result = ''
-                with open(p+'\\words.txt', "r", encoding='utf-8') as file:
-                    result = file.read()
-                    file.close()
-                tkinter.messagebox.showinfo('知识点提取结果', result)                
+                self.text.insert(END, "\n敏感词审核完成，分词存储位置:\n"+p+"\\words.txt")                
+                if os.path.exists(p+'\\sen_words.txt'):
+                    result = ''
+                    with open(p+'\\sen_words.txt', "r", encoding='utf-8') as file:
+                        result = file.read()
+                        file.close()
+                    tkinter.messagebox.showinfo('敏感词结果', result)
+                else:
+                    tkinter.messagebox.showinfo('敏感词结果', '未发现敏感词')               
             else:
                 #self.text.delete(END)
                 self.text.insert(END, "\敏感词审核失败，请重试")

@@ -190,8 +190,8 @@ if __name__ == "__main__":
     f = open(str(sys.argv[1])+'\\time_data.txt', mode='r', encoding='utf-8')
     loop = f.readline()
     time_start = time.time()
-    #for i in range(int(loop)):
-    for i in range(5):
+    for i in range(int(loop)):
+    #for i in range(5):
         time1 = datetime.now()
         wsParam = Ws_Param(APPID='5e832ee5', APIKey='4816b42b62917a6effbbafa5b404052b',
                        APISecret='97ee3bd51037395239564dba5f905029',
