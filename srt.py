@@ -31,6 +31,26 @@ if __name__ == '__main__':
         print("%d:%02d:%02d,%03d" % (h_e, m_e, s_e,te_point))
 
         sentence = f1.readline()
+        char_1=str('，')
+        count=0
+        str_list=list(sentence)
+        tem = []
+        for each_char in str_list:
+            count+=1
+            if each_char==char_1:
+                tem.append(count-1)
+                #print(each_char,count-1)
+        if len(tem) >= 4:
+            if len(tem)%2 == 0:
+                list = list(sentence)
+                list.insert(tem[int((len(tem)/2)-1)]+1,'\n')
+                sentence = ''.join(list)
+                #print(sentence)
+            else:
+                list = list(sentence)
+                list.insert(tem[int(((len(tem)+1)/2)-1)]+1,'\n')
+                sentence = ''.join(list)
+                #print(sentence)        
         with open(str(sys.argv[1])+'\\subtitles.txt', "a", encoding='utf-8') as file:
             file.write(str(i+1)+'\n'+text_s)
             file.write(' --> ')

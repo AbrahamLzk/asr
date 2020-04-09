@@ -41,7 +41,6 @@ class DFAFilter():
     def filter(self, message, repl="*"):
         message = message.lower()
         ret = []
-        result = ''
         start = 0
         while start < len(message):
             level = self.keyword_chains
