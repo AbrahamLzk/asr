@@ -92,7 +92,7 @@ class Production_Tool(Frame):
                               width=30)
         self.bt_stop.grid(row=5, column=2, rowspan=1, sticky=W)
 
-        self.bt_stop = Button(frame, text="加入字幕", command=lambda: self.speech(self.file_path), bd=3,
+        self.bt_stop = Button(frame, text="加入字幕", command=lambda: self.subtitles(self.p_path,self.file_path), bd=3,
                               width=30)
         self.bt_stop.grid(row=6, column=2, rowspan=1, sticky=W)
 
@@ -242,7 +242,65 @@ class Production_Tool(Frame):
                     tkinter.messagebox.showinfo('敏感词结果', '未发现敏感词')               
             else:
                 #self.text.delete(END)
-                self.text.insert(END, "\敏感词审核失败，请重试")
+                self.text.insert(END, "\n敏感词审核失败，请重试")
+                root.update()
+                return
+        else:
+            tkinter.messagebox.showwarning('提示', '请先进行语音分析')
+            return
+
+    def subtitles(self, p=None, f=None):
+        if os.path.exists(p+'\\result1.txt'):
+            self.text.insert(END, "\n正在进行字幕生成，请勿关闭")
+            root.update()
+            if os.system("python srt.py %s"%(p,)) == 0:
+                #self.text.delete(END)
+                if os.path.exists(p+'\\subtitles.txt'):
+                    os.rename(p+"\\subtitles.txt",p+"\\subtitles.srt")
+                    if os.path.exists(p+'\\subtitles.srt'):
+                        self.text.insert(END, "\n字幕生成完成，字幕存储位置:\n"+p+"\\subtitles.srt")
+                        self.text.insert(END, "\n正在加载字幕，请勿关闭:\n"+p+"\\subtitles.srt")
+                        root.update()
+                        now_path = os.getcwd()
+                        os.chdir(p)
+                        print(os.getcwd())
+                        if os.system("D:\\ffmpeg\\bin\\ffmpeg -i %s -vf subtitles=subtitles.srt -y %s\\final.mp4"%(f,p)) == 0:
+                            os.chdir(now_path)
+                            print(os.getcwd())
+                            self.text.insert(END, "\n字幕视频加载完成，视频存储位置:\n"+p+"\\final.mp4")
+                            root.update()
+                            if tkinter.messagebox.askyesno('字幕加载完成', '视频存储位置:\n'+p+'\\final.mp4\n是否播放视频') == True:
+                                try:
+                                    file = p + '\\final.mp4'
+                                    #self.text.delete(1.0,END)
+                                    self.text.insert(END, "视频路径:\n"+f)
+                                    self.play_media(button=self.media, f_path=file)
+                                except:
+                                    self.show_video.insert(END, "\n文件打开失败")
+                                    return False
+                            else:
+                                return
+                        else:
+                            #self.text.delete(END)
+                            os.chdir(now_path)
+                            print(os.getcwd())
+                            self.text.insert(END, "\n字幕加载失败，请重试")
+                            root.update()
+                            return
+                    else:
+                        #self.text.delete(END)
+                        self.text.insert(END, "\n字幕生成失败，请重试")
+                        root.update()
+                        return
+                else:
+                    #self.text.delete(END)
+                    self.text.insert(END, "\n字幕生成失败，请重试")
+                    root.update()
+                    return              
+                              
+            else:
+                #self.text.delete(END)
+                self.text.insert(END, "\n字幕生成失败，请重试")
                 root.update()
                 return
         else:
