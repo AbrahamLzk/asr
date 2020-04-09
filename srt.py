@@ -40,7 +40,7 @@ if __name__ == '__main__':
             if each_char==char_1:
                 tem.append(count-1)
                 #print(each_char,count-1)
-        if len(tem) >= 3:
+        if len(tem) >= 2:
             if len(tem)%2 == 0:
                 list0 = list(sentence)
                 list0.insert(tem[int((len(tem)/2)-1)]+1,'\n')

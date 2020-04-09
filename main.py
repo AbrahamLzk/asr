@@ -259,7 +259,7 @@ class Production_Tool(Frame):
                     os.rename(p+"\\subtitles.txt",p+"\\subtitles.srt")
                     if os.path.exists(p+'\\subtitles.srt'):
                         self.text.insert(END, "\n字幕生成完成，字幕存储位置:\n"+p+"\\subtitles.srt")
-                        self.text.insert(END, "\n正在加载字幕，请勿关闭:\n"+p+"\\subtitles.srt")
+                        self.text.insert(END, "\n正在加载字幕，请勿关闭")
                         root.update()
                         now_path = os.getcwd()
                         os.chdir(p)
@@ -269,7 +269,7 @@ class Production_Tool(Frame):
                             print(os.getcwd())
                             self.text.insert(END, "\n字幕视频加载完成，视频存储位置:\n"+p+"\\final.mp4")
                             root.update()
-                            if tkinter.messagebox.askyesno('字幕加载完成', '视频存储位置:\n'+p+'\\final.mp4\n是否播放视频') == True:
+                            if tkinter.messagebox.askyesno('字幕加载完成', '视频存储位置:\n'+p+'\\final.mp4\n是否播放视频？') == True:
                                 try:
                                     file = p + '\\final.mp4'
                                     #self.text.delete(1.0,END)
