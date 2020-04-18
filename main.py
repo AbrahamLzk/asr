@@ -191,7 +191,7 @@ class Production_Tool(Frame):
                 with open(p+'\\result.txt', "r", encoding='utf-8') as file:
                     result = file.readlines()
                     file.close()
-                e.set('请输入搜索文本')
+                e.set('请输入搜索文本（多个查询词请用/分开）')
                 tkinter.messagebox.showinfo('语音识别结果', result)
             else:
                 #self.text.delete(END)

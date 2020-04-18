@@ -89,21 +89,26 @@ if __name__ == '__main__':
             path=str(sys.argv[1])+'\\search.txt'
             gfw = DFAFilter()
             gfw.parse(path)
-            #result = gfw.filter(sentence)
             result = gfw.filter(text)
             #print(result)
             if result.find('*') != -1:
                 #print(result)
                 text_r = strDiff(text.lower(),result)
-                print(text_r+'，在第%s句:'%(i+1,))
+                text_result = ''
+                pynlpir.open()
+                for t in pynlpir.segment(text_r, pos_tagging=False):
+                    text_result += str(t)
+                    text_result += '，'
+                pynlpir.close()
+                print(text_result+'在第%s句:'%(i+1,))
                 print(text)
                 with open(str(sys.argv[1])+'\\search_result.txt', "a", encoding='utf-8') as file:
-                    file.write(text_r+'，在第%s句：\n'%(i+1,))
+                    file.write(text_result+'在第%s句：\n'%(i+1,))
                     file.write(text)
                     file.write('\n')
                     file.close()
                 with open(str(sys.argv[1])+'\\search_history.txt', "a", encoding='utf-8') as file:
-                    file.write(text_r+'，在第%s句：\n'%(i+1,))
+                    file.write(text_result+'在第%s句：\n'%(i+1,))
                     file.write(text)
                     file.write('\n')
                     file.close()
