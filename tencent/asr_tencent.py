@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
@@ -55,7 +55,7 @@ with open('E:\\vad\\thchs_test.txt', 'r', encoding='utf-8-sig') as f:
         try: 
             #重要：<Your SecretId>、<Your SecretKey>需要替换成用户自己的账号信息
             #请参考接口说明中的使用步骤1进行获取。
-            cred = credential.Credential("AKID9AvRhhvcmgOL5Xrdv6JOUFtISLxOpbN6", "arraXEl1G5fz3vX2GSXIsBDze3TqwlKX") 
+            cred = credential.Credential("", "") 
             httpProfile = HttpProfile()
             httpProfile.endpoint = "asr.tencentcloudapi.com"
             clientProfile = ClientProfile()
@@ -97,9 +97,9 @@ with open('E:\\vad\\thchs_test.txt', 'r', encoding='utf-8-sig') as f:
             sum += cer
             line = f.readline()
             i+=1
-            if i == 20:
+            if i >= 5:
                 print('\n')
-                print('平均字符错误率：\n', sum/i)
+                print('平均字符错误率：\n', sum/(i-len(i_number)))
                 break
             #windows系统使用下面一行替换上面一行
             #print(resp.to_json_string().decode('UTF-8').encode('GBK') )
@@ -112,3 +112,11 @@ time_end = time.time()
 print('总时长', time_end - time_start)
 print(i_number)
 print(zero_count)
+with open('compare_result.txt', 'w', encoding='utf-8') as f:
+    f.write(str(sum/(i-len(i_number))))
+    f.write('\n')
+    f.write(str(time_end - time_start))
+    f.write('\n')
+    f.write(str(i_number))
+    f.write('\n')
+    f.write(str((zero_count/(i-len(i_number)))*100))

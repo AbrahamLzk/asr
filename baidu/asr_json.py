@@ -1,4 +1,4 @@
-# coding=utf-8
+﻿# coding=utf-8
 
 import sys
 import json
@@ -26,8 +26,8 @@ else:
         # On most other platforms the best timer is time.time()
         timer = time.time
 
-API_KEY = '6AFYePBlNDM4LD8A9YoGi7TX'
-SECRET_KEY = 'heDQAjOGWFPWukqX5ymcEl0Gqs1RjMKh'
+API_KEY = ''
+SECRET_KEY = ''
 
 # 需要识别的文件
 #AUDIO_FILE = r'E:\vad\1006964305_78675b121ee04a9fa82627a8fa92bf3c_sd\test0chunk-01.wav'  # 只支持 pcm/wav/amr 格式，极速版额外支持m4a 格式
@@ -201,12 +201,20 @@ if __name__ == '__main__':
             sum += cer
             line = file.readline()
             i += 1
-            if i == 20:
+            if i >= 5:
                 print('\n')
-                print('平均字符错误率：\n', sum/i)
+                print('平均字符错误率：\n', sum/(i-len(i_number)))
                 break
         file.close()
     time_end = time.time()
     print('总时长', time_end - time_start)
     print(i_number)
     print(zero_count)
+    with open('compare_result.txt', 'w', encoding='utf-8') as f:
+        f.write(str(sum/(i-len(i_number))))
+        f.write('\n')
+        f.write(str(time_end - time_start))
+        f.write('\n')
+        f.write(str(i_number))
+        f.write('\n')
+        f.write(str((zero_count/(i-len(i_number)))*100))

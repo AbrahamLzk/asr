@@ -185,15 +185,23 @@ if __name__ == "__main__":
             sum += cer
             line = f.readline()
             i+=1
-            if i == 15:
+            if i >= 5:
                 print('\n')
-                print('平均字符错误率：\n', sum/i)
+                print('平均字符错误率：\n', sum/(i-len(i_number)))
                 break
         f.close()
     time_end = time.time()
     print('总时长', time_end - time_start)
     print(i_number)
     print(zero_count)
+    with open('compare_result.txt', 'w', encoding='utf-8') as f:
+        f.write(str(sum/(i-len(i_number))))
+        f.write('\n')
+        f.write(str(time_end - time_start))
+        f.write('\n')
+        f.write(str(i_number))
+        f.write('\n')
+        f.write(str((zero_count/(i-len(i_number)))*100))
 
     # 多线程示例
     # process_multithread(client, appkey, token, 10)

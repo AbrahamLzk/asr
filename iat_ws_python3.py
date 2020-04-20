@@ -193,8 +193,8 @@ if __name__ == "__main__":
     for i in range(int(loop)):
     #for i in range(5):
         time1 = datetime.now()
-        wsParam = Ws_Param(APPID='5e832ee5', APIKey='',
-                       APISecret='',
+        wsParam = Ws_Param(APPID='5e832ee5', APIKey='4816b42b62917a6effbbafa5b404052b',
+                       APISecret='97ee3bd51037395239564dba5f905029',
                        AudioFile= str(sys.argv[1])+'\\test0chunk-%002d.wav' % (i + 1,))
         websocket.enableTrace(False)
         wsUrl = wsParam.create_url()

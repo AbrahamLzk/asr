@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 
 from huaweicloud_sis.client.asr_client import AsrCustomizationClient
 from huaweicloud_sis.bean.asr_request import AsrCustomShortRequest
@@ -12,8 +12,8 @@ import time
 import difflib
 
 # 鉴权参数
-ak = 'YT9ZLDFXSIJ1OPWZVKV9'             # 参考https://support.huaweicloud.com/sdkreference-sis/sis_05_0003.html
-sk = 't45PnAVQnW4ISVxidISyZzYb4bbFXmAbVnjBArb0'             # 参考https://support.huaweicloud.com/sdkreference-sis/sis_05_0003.html
+ak = ''             # 参考https://support.huaweicloud.com/sdkreference-sis/sis_05_0003.html
+sk = ''             # 参考https://support.huaweicloud.com/sdkreference-sis/sis_05_0003.html
 region = 'cn-north-4'         # region，如cn-north-4
 project_id = '0865ea9f7c00f4892f0ac0131b3a6b9e'     # 同region一一对应，参考https://support.huaweicloud.com/api-sis/sis_03_0008.html
 
@@ -162,6 +162,13 @@ def get_equal_rate_1(str1, str2):
     return difflib.SequenceMatcher(None, str1, str2).quick_ratio()
 
 if __name__ == '__main__':
+    with open('compare_result.txt', 'r', encoding='UTF-8') as f:
+        num = f.readline()
+        f.close()
+    i_num = []
+    for k in num.split('[')[1].split(']')[0].split(', '):
+        i_num.append(k)
+    print(i_num)
     i = 0
     sum = 0
     i_number = []
@@ -183,13 +190,16 @@ if __name__ == '__main__':
                     continue
                 if cer == 0:
                     zero_count += 1
-                sum += cer
+                if str(i + 1) not in i_num: 
+                    sum += cer
+                else: 
+                    print('本句错误率舍去')
                 #asrc_long_example()         # 录音文件识别
                 line = f.readline()
                 i+=1
-                if i == 15:
+                if i >= 5:
                     print('\n')
-                    print('平均字符错误率：\n', sum/i)
+                    print('平均字符错误率：\n', sum/(i-len(i_num)))
                     break
             except ClientException as e:
                 print(e)
@@ -200,3 +210,11 @@ if __name__ == '__main__':
     print('总时长', time_end - time_start)
     print(i_number)
     print(zero_count)
+    with open('compare_result.txt', 'w', encoding='utf-8') as f:
+        f.write(str(sum/(i-len(i_num))))
+        f.write('\n')
+        f.write(str(time_end - time_start))
+        f.write('\n')
+        f.write(str(i_number))
+        f.write('\n')
+        f.write(str((zero_count/(i-len(i_num)))*100))

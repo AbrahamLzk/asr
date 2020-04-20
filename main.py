@@ -184,7 +184,8 @@ class Production_Tool(Frame):
                 self.text.insert(END, "\n音频分割失败，请重试")
                 root.update()
                 return
-            if os.system("python iat_ws_python3.py %s"%(p,)) == 0:
+            #if os.system("python iat_ws_python3.py %s"%(p,)) == 0:
+            if os.system("python asr_json.py %s"%(p,)) == 0:
                 #self.text.delete(END)
                 self.text.insert(END, "\n语音识别成功，文档位置:\n"+p+"\\result.txt")
                 result = ''

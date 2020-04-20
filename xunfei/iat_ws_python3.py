@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+﻿# -*- coding:utf-8 -*-
 #
 #   author: iflytek
 #
@@ -219,8 +219,8 @@ if __name__ == "__main__":
             a = line.split('	')[0]
             c = line.split('	')[2]
             time1 = datetime.now()
-            wsParam = Ws_Param(APPID='5e832ee5', APIKey='4816b42b62917a6effbbafa5b404052b',
-                        APISecret='97ee3bd51037395239564dba5f905029',
+            wsParam = Ws_Param(APPID='', APIKey='',
+                        APISecret='',
                         AudioFile= a)        
             websocket.enableTrace(False)
             wsUrl = wsParam.create_url()
@@ -253,14 +253,22 @@ if __name__ == "__main__":
             print(time2-time1)
             line = f.readline()
             i+=1
-            if i == 20:
+            if i >= 5:
                 print('\n')
-                print('平均字符错误率：\n', sum/i)
+                print('平均字符错误率：\n', sum/(i-len(i_number)))
                 break
         f.close()
     time_end = time.time()
     print('总时长', time_end - time_start)
     print(i_number)
     print(zero_count)
+    with open('compare_result.txt', 'w', encoding='utf-8') as f:
+        f.write(str(sum/(i-len(i_number))))
+        f.write('\n')
+        f.write(str(time_end - time_start))
+        f.write('\n')
+        f.write(str(i_number))
+        f.write('\n')
+        f.write(str((zero_count/(i-len(i_number)))*100))
     #with open(os.getcwd()+'\\command.txt', "w", encoding='utf-8') as f:
             #f.write('ASR_Done')

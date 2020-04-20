@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 
 """
  * Copyright 2015 Alibaba Group Holding Limited
@@ -23,8 +23,8 @@ import ali_speech
 def get_token():
     ali_speech.NlsClient.set_log_level('INFO')
     # 用户信息
-    access_key_id = 'LTAI4G4xKX93quSccn3Hw1Pe'
-    access_key_secret = '0jtK8TLOaioKkWhZqtBDNqTn8JwDNy'
+    access_key_id = ''
+    access_key_secret = ''
     token, expire_time = ali_speech.NlsClient.create_token(access_key_id, access_key_secret)
     print('token: %s, expire time(s): %s' % (token, expire_time))
     if expire_time:
