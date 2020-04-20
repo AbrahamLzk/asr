@@ -55,7 +55,7 @@ with open('E:\\vad\\thchs_test.txt', 'r', encoding='utf-8-sig') as f:
         try: 
             #重要：<Your SecretId>、<Your SecretKey>需要替换成用户自己的账号信息
             #请参考接口说明中的使用步骤1进行获取。
-            cred = credential.Credential("AKID9AvRhhvcmgOL5Xrdv6JOUFtISLxOpbN6", "arraXEl1G5fz3vX2GSXIsBDze3TqwlKX") 
+            cred = credential.Credential("", "") 
             httpProfile = HttpProfile()
             httpProfile.endpoint = "asr.tencentcloudapi.com"
             clientProfile = ClientProfile()
