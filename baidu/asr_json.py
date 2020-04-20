@@ -4,6 +4,8 @@ import sys
 import json
 import base64
 import time
+import difflib
+import os
 
 IS_PY3 = sys.version_info.major == 3
 
@@ -24,8 +26,8 @@ else:
         # On most other platforms the best timer is time.time()
         timer = time.time
 
-API_KEY = ''
-SECRET_KEY = ''
+API_KEY = '6AFYePBlNDM4LD8A9YoGi7TX'
+SECRET_KEY = 'heDQAjOGWFPWukqX5ymcEl0Gqs1RjMKh'
 
 # 需要识别的文件
 #AUDIO_FILE = r'E:\vad\1006964305_78675b121ee04a9fa82627a8fa92bf3c_sd\test0chunk-01.wav'  # 只支持 pcm/wav/amr 格式，极速版额外支持m4a 格式
@@ -95,49 +97,116 @@ def fetch_token():
 
 """  TOKEN end """
 
+def get_equal_rate_1(str1, str2):
+    return difflib.SequenceMatcher(None, str1, str2).quick_ratio()
+
+def is_number(uchar):
+    """
+    判断一个unicode是否是数字
+    :param uchar:
+    :return:
+    """
+    if uchar >= u'\u0030' and uchar<=u'\u0039':
+        return True
+    else:
+        return False
+
+def is_contain_number(user_nick_name):
+    """
+    :param user_nick_name:名字
+    :return: 返回名字是否包含中文，英文，数字三者。
+    """
+    # 名字含中文
+    is_number_true_list = []
+    for each in user_nick_name:
+        #is_chinese_true_list.append(is_chinese(each))
+        is_number_true_list.append(is_number(each))
+        #is_alphabet_true_list.append(is_alphabet(each))
+
+    if (True in is_number_true_list):
+       return True
+    else:
+        return False
+
 if __name__ == '__main__':
+    time_start = time.time()
     token = fetch_token()
+    i = 0
+    sum = 0
+    i_number = []
+    zero_count = 0
+    with open('E:\\vad\\thchs_test.txt', 'r', encoding='utf-8-sig') as file:
+        line = file.readline()
+        while line:
+            asr = ''
+            a = line.split('	')[0]
+            c = line.split('	')[2]
+            AUDIO_FILE = a
+            speech_data = []
+            with open(AUDIO_FILE, 'rb') as speech_file:
+                speech_data = speech_file.read()
 
-    for i in range(5):
-        AUDIO_FILE = 'E:\\vad\\1006964305_78675b121ee04a9fa82627a8fa92bf3c_sd\\test0chunk-%002d.wav'%(i+1)
-        speech_data = []
-        with open(AUDIO_FILE, 'rb') as speech_file:
-            speech_data = speech_file.read()
+            length = len(speech_data)
+            if length == 0:
+                raise DemoError('file %s length read 0 bytes' % AUDIO_FILE)
+            speech = base64.b64encode(speech_data)
+            if (IS_PY3):
+                speech = str(speech, 'utf-8')
+            params = {'dev_pid': DEV_PID,
+                    #"lm_id" : LM_ID,    #测试自训练平台开启此项
+                    'format': FORMAT,
+                    'rate': RATE,
+                    'token': token,
+                    'cuid': CUID,
+                    'channel': 1,
+                    'speech': speech,
+                    'len': length
+                    }
+            post_data = json.dumps(params, sort_keys=False)
+            # print post_data
+            req = Request(ASR_URL, post_data.encode('utf-8'))
+            req.add_header('Content-Type', 'application/json')
+            try:
+                begin = timer()
+                f = urlopen(req)
+                result_str = f.read()
+                #print ("Request time cost %f" % (timer() - begin))
+            except URLError as err:
+                #print('asr http response http code : ' + str(err.code))
+                result_str = err.read()
 
-        length = len(speech_data)
-        if length == 0:
-            raise DemoError('file %s length read 0 bytes' % AUDIO_FILE)
-        speech = base64.b64encode(speech_data)
-        if (IS_PY3):
-            speech = str(speech, 'utf-8')
-        params = {'dev_pid': DEV_PID,
-                #"lm_id" : LM_ID,    #测试自训练平台开启此项
-                'format': FORMAT,
-                'rate': RATE,
-                'token': token,
-                'cuid': CUID,
-                'channel': 1,
-                'speech': speech,
-                'len': length
-                }
-        post_data = json.dumps(params, sort_keys=False)
-        # print post_data
-        req = Request(ASR_URL, post_data.encode('utf-8'))
-        req.add_header('Content-Type', 'application/json')
-        try:
-            begin = timer()
-            f = urlopen(req)
-            result_str = f.read()
-            print ("Request time cost %f" % (timer() - begin))
-        except URLError as err:
-            print('asr http response http code : ' + str(err.code))
-            result_str = err.read()
-
-        if (IS_PY3):
-            result_str = str(result_str, 'utf-8')
-            result = result_str.split('[')[1]
-            result = result.split(']')[0]
-            result = result.split('"')[1]
-        print(result)
-        with open("result.txt","w") as of:
-            of.write(result_str)
+            if (IS_PY3):
+                result_str = str(result_str, 'utf-8')
+                result = result_str.split('[')[1]
+                result = result.split(']')[0]
+                result = result.split('"')[1]
+            print(result)
+            for r in result:
+                if str(r) != '。' and str(r) != '？' and str(r) != '！'and str(r) != '，':
+                    asr += str(r)
+            if is_contain_number(asr):
+                i_number.append(i+1)
+                i += 1
+                line = file.readline()
+                continue            
+            print('原文结果：\n')
+            print(c)
+            print('识别结果：\n')
+            print(asr)
+            cer = get_equal_rate_1(asr.strip(), c.strip())
+            cer = 100 - cer * 100
+            print('本句字符错误率：', cer)
+            if cer == 0:
+                zero_count += 1
+            sum += cer
+            line = file.readline()
+            i += 1
+            if i == 20:
+                print('\n')
+                print('平均字符错误率：\n', sum/i)
+                break
+        file.close()
+    time_end = time.time()
+    print('总时长', time_end - time_start)
+    print(i_number)
+    print(zero_count)

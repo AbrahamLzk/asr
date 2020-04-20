@@ -9,10 +9,11 @@ from huaweicloud_sis.utils import io_utils
 from huaweicloud_sis.bean.sis_config import SisConfig
 import json
 import time
+import difflib
 
 # 鉴权参数
-ak = ''             # 参考https://support.huaweicloud.com/sdkreference-sis/sis_05_0003.html
-sk = ''             # 参考https://support.huaweicloud.com/sdkreference-sis/sis_05_0003.html
+ak = 'YT9ZLDFXSIJ1OPWZVKV9'             # 参考https://support.huaweicloud.com/sdkreference-sis/sis_05_0003.html
+sk = 't45PnAVQnW4ISVxidISyZzYb4bbFXmAbVnjBArb0'             # 参考https://support.huaweicloud.com/sdkreference-sis/sis_05_0003.html
 region = 'cn-north-4'         # region，如cn-north-4
 project_id = '0865ea9f7c00f4892f0ac0131b3a6b9e'     # 同region一一对应，参考https://support.huaweicloud.com/api-sis/sis_03_0008.html
 
@@ -39,8 +40,36 @@ obs_url = ''                # 音频obs连接
 obs_audio_format = ''       # 音频格式，如auto等，详见api文档
 obs_property = ''           # language_sampleRate_domain, 如chinese_8k_common，详见api文档
 
+def is_number(uchar):
+    """
+    判断一个unicode是否是数字
+    :param uchar:
+    :return:
+    """
+    if uchar >= u'\u0030' and uchar<=u'\u0039':
+        return True
+    else:
+        return False
+
+def is_contain_number(user_nick_name):
+    """
+    :param user_nick_name:名字
+    :return: 返回名字是否包含中文，英文，数字三者。
+    """
+    # 名字含中文
+    is_number_true_list = []
+    for each in user_nick_name:
+        #is_chinese_true_list.append(is_chinese(each))
+        is_number_true_list.append(is_number(each))
+        #is_alphabet_true_list.append(is_alphabet(each))
+
+    if (True in is_number_true_list):
+       return True
+    else:
+        return False
 
 def asrc_short_example(path):
+    asr = ''
     """ 一句话识别示例 """
     # step1 初始化客户端
     config = SisConfig()
@@ -61,7 +90,23 @@ def asrc_short_example(path):
 
     # step3 发送请求，返回结果,返回结果为json格式
     result = asr_client.get_short_response(asr_request)
-    print(json.dumps(result, indent=2, ensure_ascii=False))
+    #print(json.dumps(result, indent=2, ensure_ascii=False))
+    #print(json.dumps(result, indent=2, ensure_ascii=False).split('"')[9])
+    for r in json.dumps(result, indent=2, ensure_ascii=False).split('"')[9]:
+        if str(r) != '。' and str(r) != '？' and str(r) != '！'and str(r) != '，':
+            asr += str(r)
+    if is_contain_number(asr):
+        cer = -1
+        return cer
+    print('原文结果：\n')
+    print(c)
+    print('识别结果：\n')
+    print(asr)
+    cer = get_equal_rate_1(asr.strip(), c.strip())
+    cer = 100 - cer * 100
+    print('本句字符错误率：', cer)
+    return cer
+
 
 
 def asrc_long_example():
@@ -113,14 +158,45 @@ def asrc_long_example():
     # result为json格式
     print(json.dumps(result, indent=2, ensure_ascii=False))
 
+def get_equal_rate_1(str1, str2):
+    return difflib.SequenceMatcher(None, str1, str2).quick_ratio()
 
 if __name__ == '__main__':
-    for i in range(5):
-        path = 'E:\\vad\\1006964305_78675b121ee04a9fa82627a8fa92bf3c_sd\\test0chunk-%002d.wav'%(i+1)
-        try:
-            asrc_short_example(path)        # 一句话识别
-            asrc_long_example()         # 录音文件识别
-        except ClientException as e:
-            print(e)
-        except ServerException as e:
-            print(e)
+    i = 0
+    sum = 0
+    i_number = []
+    zero_count = 0
+    with open('E:\\vad\\thchs_test.txt', 'r', encoding='utf-8-sig') as f:
+        time_start = time.time()
+        line = f.readline()
+        while line:
+            #asr = ''
+            a = line.split('	')[0]
+            c = line.split('	')[2]
+            path = a
+            try:
+                cer = asrc_short_example(path)        # 一句话识别
+                if cer == -1:
+                    i_number.append(i+1)
+                    i += 1
+                    line = f.readline()
+                    continue
+                if cer == 0:
+                    zero_count += 1
+                sum += cer
+                #asrc_long_example()         # 录音文件识别
+                line = f.readline()
+                i+=1
+                if i == 15:
+                    print('\n')
+                    print('平均字符错误率：\n', sum/i)
+                    break
+            except ClientException as e:
+                print(e)
+            except ServerException as e:
+                print(e)
+        f.close()
+    time_end = time.time()
+    print('总时长', time_end - time_start)
+    print(i_number)
+    print(zero_count)
