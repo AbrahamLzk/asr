@@ -12,8 +12,8 @@ import time
 import difflib
 
 # 鉴权参数
-ak = 'YT9ZLDFXSIJ1OPWZVKV9'             # 参考https://support.huaweicloud.com/sdkreference-sis/sis_05_0003.html
-sk = 't45PnAVQnW4ISVxidISyZzYb4bbFXmAbVnjBArb0'             # 参考https://support.huaweicloud.com/sdkreference-sis/sis_05_0003.html
+ak = ''             # 参考https://support.huaweicloud.com/sdkreference-sis/sis_05_0003.html
+sk = ''             # 参考https://support.huaweicloud.com/sdkreference-sis/sis_05_0003.html
 region = 'cn-north-4'         # region，如cn-north-4
 project_id = '0865ea9f7c00f4892f0ac0131b3a6b9e'     # 同region一一对应，参考https://support.huaweicloud.com/api-sis/sis_03_0008.html
 
