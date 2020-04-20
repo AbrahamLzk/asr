@@ -210,6 +210,7 @@ if __name__ == '__main__':
     print('总时长', time_end - time_start)
     print(i_number)
     print(zero_count)
+<<<<<<< HEAD
     with open('compare_result.txt', 'w', encoding='utf-8') as f:
         f.write(str(sum/(i-len(i_num))))
         f.write('\n')
@@ -218,3 +219,5 @@ if __name__ == '__main__':
         f.write(str(i_number))
         f.write('\n')
         f.write(str((zero_count/(i-len(i_num)))*100))
+=======
+>>>>>>> origin/nlp
