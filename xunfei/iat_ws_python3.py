@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+﻿# -*- coding:utf-8 -*-
 #
 #   author: iflytek
 #
@@ -32,6 +32,7 @@ import time
 import ssl
 import sys
 import os
+import difflib
 from wsgiref.handlers import format_date_time
 from datetime import datetime
 from time import mktime
@@ -105,22 +106,11 @@ def on_message(ws, message):
             for i in data:
                 for w in i["cw"]:
                     result += w["w"]
-            print("sid:%s call success!,data is:%s" % (sid, json.dumps(data, ensure_ascii=False)))
-            print(result)
-            with open(str(sys.argv[1])+'\\result.txt', "a", encoding='utf-8') as f:
-                f.write(str(result))
-                '''
-                if str(result) == '。' or str(result) == '？':
-                    f.write(str('\n'))
-                '''
-                f.close()
-            with open(str(sys.argv[1])+'\\result1.txt', "a", encoding='utf-8') as f:
-                for a in result:
-                    if str(a) != '。' and str(a) != '？':
-                        f.write(str(a))
-                #if str(result) == '。' or str(result) == '？':
-                    #f.write(str('\n'))
-                f.close()
+            #print("sid:%s call success!,data is:%s" % (sid, json.dumps(data, ensure_ascii=False)))
+            #print(result)
+            with open(os.getcwd()+'\\result1.txt', "a", encoding='utf-8') as f:
+                f.write(result)
+                f.close
 
     except Exception as e:
         print("receive msg,but parse exception:", e)
@@ -183,30 +173,102 @@ def on_open(ws):
 
     thread.start_new_thread(run, ())
 
+def is_number(uchar):
+    """
+    判断一个unicode是否是数字
+    :param uchar:
+    :return:
+    """
+    if uchar >= u'\u0030' and uchar<=u'\u0039':
+        return True
+    else:
+        return False
+
+def is_contain_number(user_nick_name):
+    """
+    :param user_nick_name:名字
+    :return: 返回名字是否包含中文，英文，数字三者。
+    """
+    # 名字含中文
+    is_number_true_list = []
+    for each in user_nick_name:
+        #is_chinese_true_list.append(is_chinese(each))
+        is_number_true_list.append(is_number(each))
+        #is_alphabet_true_list.append(is_alphabet(each))
+
+    if (True in is_number_true_list):
+       return True
+    else:
+        return False
+
+def get_equal_rate_1(str1, str2):
+    return difflib.SequenceMatcher(None, str1, str2).quick_ratio()
 
 if __name__ == "__main__":
     # 测试时候在此处正确填写相关信息即可运行
     i = 0
-    f = open(str(sys.argv[1])+'\\time_data.txt', mode='r', encoding='utf-8')
-    loop = f.readline()
+    sum = 0
+    i_number = []
+    zero_count = 0
     time_start = time.time()
-    for i in range(int(loop)):
-    #for i in range(5):
-        time1 = datetime.now()
-        wsParam = Ws_Param(APPID='5e832ee5', APIKey='4816b42b62917a6effbbafa5b404052b',
-                       APISecret='97ee3bd51037395239564dba5f905029',
-                       AudioFile= str(sys.argv[1])+'\\test0chunk-%002d.wav' % (i + 1,))
-        websocket.enableTrace(False)
-        wsUrl = wsParam.create_url()
-        ws = websocket.WebSocketApp(wsUrl, on_message=on_message, on_error=on_error, on_close=on_close)
-        ws.on_open = on_open
-        ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
-        with open(str(sys.argv[1])+'\\result1.txt', "a", encoding='utf-8') as f:
-            f.write(str('\n'))
-            f.close()
-        time2 = datetime.now()
-        print(time2-time1)
+    with open('E:\\vad\\thchs_test.txt', 'r', encoding='utf-8-sig') as f:
+        line = f.readline()
+        while line:
+            asr = ''
+            temp = ''
+            a = line.split('	')[0]
+            c = line.split('	')[2]
+            time1 = datetime.now()
+            wsParam = Ws_Param(APPID='', APIKey='',
+                        APISecret='',
+                        AudioFile= a)        
+            websocket.enableTrace(False)
+            wsUrl = wsParam.create_url()
+            ws = websocket.WebSocketApp(wsUrl, on_message=on_message, on_error=on_error, on_close=on_close)
+            ws.on_open = on_open
+            ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
+            with open(os.getcwd()+'\\result1.txt', "r", encoding='utf-8') as file:
+                asr_result = file.readline()
+                file.close
+            os.remove(os.getcwd()+'\\result1.txt')
+            for r in str(asr_result):
+                if str(r) != '。' and str(r) != '？' and str(r) != '！'and str(r) != '，':
+                    asr += str(r)
+            if is_contain_number(asr):
+                i_number.append(i+1)
+                i += 1
+                line = f.readline()
+                continue
+            print('原文结果：\n')
+            print(c)
+            print('识别结果：\n')
+            print(asr)
+            cer = get_equal_rate_1(asr.strip(), c.strip())
+            cer = 100 - cer * 100
+            print('本句字符错误率：', cer)
+            if cer == 0:
+                zero_count += 1
+            sum += cer
+            time2 = datetime.now()
+            print(time2-time1)
+            line = f.readline()
+            i+=1
+            if i >= 5:
+                print('\n')
+                print('平均字符错误率：\n', sum/(i-len(i_number)))
+                break
+        f.close()
     time_end = time.time()
-    print('totally cost', time_end - time_start)
+    print('总时长', time_end - time_start)
+    print(i_number)
+    print(zero_count)
+    with open('compare_result.txt', 'w', encoding='utf-8') as f:
+        f.write(str(sum/(i-len(i_number))))
+        f.write('\n')
+        f.write(str(time_end - time_start))
+        f.write('\n')
+        f.write(str(i_number))
+        f.write('\n')
+        f.write(str((zero_count/(i-len(i_number)))*100))
     #with open(os.getcwd()+'\\command.txt', "w", encoding='utf-8') as f:
             #f.write('ASR_Done')

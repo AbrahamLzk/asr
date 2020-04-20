@@ -155,7 +155,7 @@ def main(args):
         audio, sample_rate = read_wave(args[1])
         print('level')
         print(int(args[0]))
-        vad = webrtcvad.Vad(1)
+        vad = webrtcvad.Vad(3)
         frames = frame_generator(30, audio, sample_rate)
         frames = list(frames)
         segments = vad_collector(sample_rate, 30, 300, vad, frames)

@@ -68,6 +68,15 @@ def strDiff(str1,str2):
     return "".join(tmp.values())
 
 if __name__ == '__main__':
+    if os.path.exists(str(sys.argv[1])+'\\search_result.txt'):
+        os.remove(str(sys.argv[1])+'\\search_result.txt')
+    with open(str(sys.argv[1])+'\\search_history.txt', "a", encoding='utf-8') as file:
+        f = open(str(sys.argv[1])+'\\search.txt', mode='r', encoding='utf-8')
+        file.write('本次搜索记录：\n')
+        file.write(f.read())
+        file.write('\n')
+        f.close()
+        file.close()
     with open(str(sys.argv[1])+'\\time_data.txt', "r", encoding='utf-8') as file:
         temp = file.readline()
         print(temp)
@@ -76,39 +85,34 @@ if __name__ == '__main__':
     for i in range(int(temp)):
         text = f.readline()
         if text != '':
-            pynlpir.open()  # 打开分词器
-            #print(pynlpir.segment(text, pos_tagging=False))
-            with open(str(sys.argv[1])+'\\words.txt', "a", encoding='utf-8') as file:
-                for t in pynlpir.segment(text, pos_tagging=False):
-                    if str(t) != '，' and str(t) != '。' and str(t) != '？':
-                        file.write(str(t))
-                        file.write(str(','))
-                file.write('\n')
-                file.close()
-            sentence = ''
-            for t in pynlpir.segment(text, pos_tagging=False):
-                if str(t) != '，' and str(t) != '。' and str(t) != '？':
-                    sentence += str(t)
-                    sentence += ','
-            pynlpir.close()
             #gfw = DFAFilter()
-            sensitive = ['色情','反动','暴恐','民生','贪腐','其他']
-            for sen in sensitive:
-                path=os.getcwd()+'\\' +sen+ '.txt'
-                gfw = DFAFilter()
-                gfw.parse(path)
-                #result = gfw.filter(sentence)
-                result = gfw.filter(text)
+            path=str(sys.argv[1])+'\\search.txt'
+            gfw = DFAFilter()
+            gfw.parse(path)
+            result = gfw.filter(text)
+            #print(result)
+            if result.find('*') != -1:
                 #print(result)
-                if result.find('*') != -1:
-                    #print(result)
-                    text_r = strDiff(text.lower(),result)
-                    print(text_r)
-                    print(sen+'敏感词'+'，在第%s句'%(i+1,))
-                    with open(str(sys.argv[1])+'\\sen_words.txt', "a", encoding='utf-8') as file:
-                        file.write(text_r)
-                        file.write('：'+sen+'敏感词'+'，在第%s句\n'%(i+1,))
-                        file.close()
+                text_r = strDiff(text.lower(),result)
+                text_result = ''
+                pynlpir.open()
+                for t in pynlpir.segment(text_r, pos_tagging=False):
+                    text_result += str(t)
+                    text_result += '，'
+                pynlpir.close()
+                print(text_result+'在第%s句:'%(i+1,))
+                print(text)
+                with open(str(sys.argv[1])+'\\search_result.txt', "a", encoding='utf-8') as file:
+                    file.write(text_result+'在第%s句：\n'%(i+1,))
+                    file.write(text)
+                    file.write('\n')
+                    file.close()
+                with open(str(sys.argv[1])+'\\search_history.txt', "a", encoding='utf-8') as file:
+                    file.write(text_result+'在第%s句：\n'%(i+1,))
+                    file.write(text)
+                    file.write('\n')
+                    file.close()
     f.close()
+    os.remove(str(sys.argv[1])+'\\search.txt')
     time2 = time.time()
     print('总共耗时：' + str(time2 - time1) + 's')

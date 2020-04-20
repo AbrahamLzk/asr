@@ -13,6 +13,9 @@ from tkinter import *
 
 import vlc
 
+def readonly_handler(func, path, execinfo):
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
 
 class Production_Tool(Frame):
     def __init__(self, master):
@@ -40,9 +43,19 @@ class Production_Tool(Frame):
         self.lab_tmp.grid(row=0, column=0, rowspan=1, sticky=W)
 
         self.show_video = Text(frame1, width=150, height=40, wrap=WORD, bd=4, bg="white")
-        self.show_video.grid(row=15, column=1, rowspan=1, sticky=W)
+        self.show_video.grid(row=15, column=1, rowspan=1, columnspan=2, sticky=W)
         self.show_video.insert(END, "等待视频播放")
         self.media = vlc.MediaPlayer()
+
+        global e
+        e = StringVar()
+        self.entry = Entry(frame1, textvariable = e, bd=2, width=118)
+        self.entry.grid(row=16, column=1, rowspan=1, sticky=W)
+        e.set('请先进行语音分析')
+
+        self.bt_play = Button(frame1, text="搜  索", command=lambda: self.search(self.p_path), bd=2,
+                              width=30)
+        self.bt_play.grid(row=16, column=2, rowspan=1, sticky=W)
 
         self.file_path = ''
         self.p_path = ''
@@ -88,21 +101,22 @@ class Production_Tool(Frame):
                               width=30)
         self.bt_open.grid(row=4, column=2, rowspan=1, sticky=W)
 
-        self.bt_stop = Button(frame, text="获取知识点", command=lambda: self.textrank(self.p_path), bd=3,
+        self.bt_stop = Button(frame, text="敏感词审核", command=lambda: self.nlpir(self.p_path), bd=3,
                               width=30)
         self.bt_stop.grid(row=5, column=2, rowspan=1, sticky=W)
 
-        self.bt_stop = Button(frame, text="加入字幕", command=lambda: self.speech(self.file_path), bd=3,
+        self.bt_stop = Button(frame, text="获得知识点", command=lambda: self.textrank(self.p_path), bd=3,
                               width=30)
         self.bt_stop.grid(row=6, column=2, rowspan=1, sticky=W)
 
-        self.bt_stop = Button(frame, text="敏感词审核", command=lambda: self.nlpir(self.p_path), bd=3,
+        self.bt_stop = Button(frame, text="加入字幕", command=lambda: self.subtitles(self.p_path,self.file_path), bd=3,
                               width=30)
         self.bt_stop.grid(row=7, column=2, rowspan=1, sticky=W)
 
-        self.text = Text(frame, width=30, height=23, wrap=WORD, bd=4, bg="white")
+
+        self.text = Text(frame, width=30, height=25, wrap=WORD, bd=4, bg="white")
         self.text.grid(row=8, column=2, rowspan=1, sticky=W)
-        self.text.insert(END, "请选择视频文件")
+        self.text.insert(END, "请选择视频文件，并进行语音分析")
 
     def play_media(self, button=None, f_path=None):
         if button and f_path:
@@ -151,7 +165,7 @@ class Production_Tool(Frame):
                     for n in fileList[2]:
                         os.chmod(os.path.join(fileList[0],n), stat.S_IWRITE)
                         os.remove(os.path.join(fileList[0],n))
-                shutil.rmtree(filePath)
+                shutil.rmtree(filePath, onerror=readonly_handler)
                 os.mkdir(name)
                 print('mk_succeed')
             p = os.getcwd()+'\\'+name
@@ -170,13 +184,15 @@ class Production_Tool(Frame):
                 self.text.insert(END, "\n音频分割失败，请重试")
                 root.update()
                 return
-            if os.system("python iat_ws_python3.py %s"%(p,)) == 0:
+            #if os.system("python iat_ws_python3.py %s"%(p,)) == 0:
+            if os.system("python asr_json.py %s"%(p,)) == 0:
                 #self.text.delete(END)
                 self.text.insert(END, "\n语音识别成功，文档位置:\n"+p+"\\result.txt")
                 result = ''
                 with open(p+'\\result.txt', "r", encoding='utf-8') as file:
                     result = file.readlines()
                     file.close()
+                e.set('请输入搜索文本（多个查询词请用/分开）')
                 tkinter.messagebox.showinfo('语音识别结果', result)
             else:
                 #self.text.delete(END)
@@ -231,17 +247,110 @@ class Production_Tool(Frame):
             root.update()
             if os.system("python nlpir.py %s"%(p,)) == 0:
                 #self.text.delete(END)
-                self.text.insert(END, "\n敏感词审核完成，分词存储位置:\n"+p+"\\words.txt")
-                
-                result = ''
-                with open(p+'\\words.txt', "r", encoding='utf-8') as file:
-                    result = file.read()
-                    file.close()
-                tkinter.messagebox.showinfo('知识点提取结果', result)                
+                self.text.insert(END, "\n敏感词审核完成，分词存储位置:\n"+p+"\\words.txt")                
+                if os.path.exists(p+'\\sen_words.txt'):
+                    result = ''
+                    with open(p+'\\sen_words.txt', "r", encoding='utf-8') as file:
+                        result = file.read()
+                        file.close()
+                    tkinter.messagebox.showinfo('敏感词结果', result)
+                else:
+                    tkinter.messagebox.showinfo('敏感词结果', '未发现敏感词')               
             else:
                 #self.text.delete(END)
-                self.text.insert(END, "\敏感词审核失败，请重试")
+                self.text.insert(END, "\n敏感词审核失败，请重试")
                 root.update()
+                return
+        else:
+            tkinter.messagebox.showwarning('提示', '请先进行语音分析')
+            return
+
+    def subtitles(self, p=None, f=None):
+        if os.path.exists(p+'\\result1.txt'):
+            self.text.insert(END, "\n正在进行字幕生成，请勿关闭")
+            root.update()
+            if os.system("python srt.py %s"%(p,)) == 0:
+                #self.text.delete(END)
+                if os.path.exists(p+'\\subtitles.txt'):
+                    os.rename(p+"\\subtitles.txt",p+"\\subtitles.srt")
+                    if os.path.exists(p+'\\subtitles.srt'):
+                        self.text.insert(END, "\n字幕生成完成，字幕存储位置:\n"+p+"\\subtitles.srt")
+                        self.text.insert(END, "\n正在加载字幕，请勿关闭")
+                        root.update()
+                        now_path = os.getcwd()
+                        os.chdir(p)
+                        print(os.getcwd())
+                        if os.system("D:\\ffmpeg\\bin\\ffmpeg -i %s -vf subtitles=subtitles.srt -y %s\\final.mp4"%(f,p)) == 0:
+                            os.chdir(now_path)
+                            print(os.getcwd())
+                            self.text.insert(END, "\n字幕视频加载完成，视频存储位置:\n"+p+"\\final.mp4")
+                            root.update()
+                            if tkinter.messagebox.askyesno('字幕加载完成', '视频存储位置:\n'+p+'\\final.mp4\n是否播放视频？') == True:
+                                try:
+                                    file = p + '\\final.mp4'
+                                    #self.text.delete(1.0,END)
+                                    self.text.insert(END, "视频路径:\n"+f)
+                                    self.play_media(button=self.media, f_path=file)
+                                except:
+                                    self.show_video.insert(END, "\n文件打开失败")
+                                    return False
+                            else:
+                                return
+                        else:
+                            #self.text.delete(END)
+                            os.chdir(now_path)
+                            print(os.getcwd())
+                            self.text.insert(END, "\n字幕加载失败，请重试")
+                            root.update()
+                            return
+                    else:
+                        #self.text.delete(END)
+                        self.text.insert(END, "\n字幕生成失败，请重试")
+                        root.update()
+                        return
+                else:
+                    #self.text.delete(END)
+                    self.text.insert(END, "\n字幕生成失败，请重试")
+                    root.update()
+                    return              
+                              
+            else:
+                #self.text.delete(END)
+                self.text.insert(END, "\n字幕生成失败，请重试")
+                root.update()
+                return
+        else:
+            tkinter.messagebox.showwarning('提示', '请先进行语音分析')
+            return
+    def search(self, p=None):
+        if os.path.exists(p+'\\result.txt'):
+            self.text.insert(END, "\n正在进行搜索审核，请勿关闭")
+            root.update()
+            if e.get() != '':
+                text = str(e.get())
+                with open(p+'\\search.txt', "a", encoding='utf-8') as file:
+                    for element in text.split('/'):
+                        file.write(element)
+                        file.write('\n')
+                    file.close()
+                if os.system("python search.py %s"%(p,)) == 0:
+                    #self.text.delete(END)
+                    self.text.insert(END, "\n搜索完成，搜索历史存储位置:\n"+p+"\\search_history.txt")                
+                    if os.path.exists(p+'\\search_result.txt'):
+                        result = ''
+                        with open(p+'\\search_result.txt', "r", encoding='utf-8') as file:
+                            result = file.read()
+                            file.close()
+                        tkinter.messagebox.showinfo('搜索结果', result)
+                    else:
+                        tkinter.messagebox.showinfo('搜索结果', '未发现该文本')               
+                else:
+                    #self.text.delete(END)
+                    self.text.insert(END, "\n搜索失败，请重试")
+                    root.update()
+                    return
+            else:
+                tkinter.messagebox.showwarning('提示', '请输入搜索文本')
                 return
         else:
             tkinter.messagebox.showwarning('提示', '请先进行语音分析')
@@ -269,7 +378,7 @@ if __name__ == '__main__':
     print("屏幕比例: %s x %s" % (w_width, w_height))
     # 笔记本分辨率 1536 * 864
     # root.geometry("1280x720+400+200") # 固定位置
-    x, y = 1320, 570
+    x, y = 1320, 600
     root.geometry("%dx%d+%d+%d" % (x, y, (w_width - x) / 2, (w_height - y) / 2))
 
     app = Production_Tool(root)
