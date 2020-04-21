@@ -1,9 +1,15 @@
 #-*- coding:utf-8 -*-
-
+import os
 import sys
 
 
 if __name__ == '__main__':
+    if os.path.exists(str(sys.argv[1])+'\\subtitles.srt'):
+        os.remove(str(sys.argv[1])+'\\subtitles.srt')
+    if os.path.exists(str(sys.argv[1])+'\\subtitles.txt'):
+        os.remove(str(sys.argv[1])+'\\subtitles.txt')
+    if os.path.exists(str(sys.argv[1])+'\\final.mp4'):
+        os.remove(str(sys.argv[1])+'\\final.mp4')
     f0 = open(str(sys.argv[1])+'\\time_data.txt', mode='r', encoding='utf-8')
     temp = f0.readline()
     f1 = open(str(sys.argv[1])+'\\result1.txt', mode='r', encoding='utf-8')

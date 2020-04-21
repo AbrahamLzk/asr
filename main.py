@@ -146,6 +146,10 @@ class Production_Tool(Frame):
             return False
         print("File: %s" % f)
         self.file_path = f
+        name = f.split('/')[-1]
+        name = name.split('.')[0]
+        p = os.getcwd()+'\\'+name
+        self.p_path = p
         self.play_media(button=self.media, f_path=f)
 
     def speech(self, f=None):
@@ -242,10 +246,11 @@ class Production_Tool(Frame):
             return
 
     def nlpir(self, p=None):
-        if os.path.exists(p+'\\result.txt'):
+        if os.path.exists(p+'\\result1.txt'):
             self.text.insert(END, "\n正在进行敏感词审核，请勿关闭")
             root.update()
-            if os.system("python nlpir.py %s"%(p,)) == 0:
+            #if os.system("python nlpir_DFA.py %s"%(p,)) == 0:
+            if os.system("python nlpir_ac.py %s"%(p,)) == 0:
                 #self.text.delete(END)
                 self.text.insert(END, "\n敏感词审核完成，分词存储位置:\n"+p+"\\words.txt")                
                 if os.path.exists(p+'\\sen_words.txt'):
@@ -323,7 +328,7 @@ class Production_Tool(Frame):
             tkinter.messagebox.showwarning('提示', '请先进行语音分析')
             return
     def search(self, p=None):
-        if os.path.exists(p+'\\result.txt'):
+        if os.path.exists(p+'\\result1.txt'):
             self.text.insert(END, "\n正在进行搜索审核，请勿关闭")
             root.update()
             if e.get() != '':

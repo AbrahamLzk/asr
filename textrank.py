@@ -4,6 +4,7 @@ from textrank4zh import TextRank4Keyword, TextRank4Sentence
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import os
 import sys
 
 
@@ -11,7 +12,8 @@ if __name__ == '__main__':
     f = open(str(sys.argv[1])+'\\result.txt', mode='r', encoding='utf-8')
     text = f.read()
     f.close()
-
+    if os.path.exists(str(sys.argv[1])+'\\keywords.txt'):
+        os.remove(str(sys.argv[1])+'\\keywords.txt')
     tr4w = TextRank4Keyword()
     tr4w.analyze(text=text, lower=True, window=5)
     print('关键词：')

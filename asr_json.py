@@ -1,4 +1,4 @@
-# coding=utf-8
+﻿# coding=utf-8
 
 import sys
 import json
@@ -26,8 +26,8 @@ else:
         # On most other platforms the best timer is time.time()
         timer = time.time
 
-API_KEY = '6AFYePBlNDM4LD8A9YoGi7TX'
-SECRET_KEY = 'heDQAjOGWFPWukqX5ymcEl0Gqs1RjMKh'
+API_KEY = ''
+SECRET_KEY = ''
 
 # 需要识别的文件
 #AUDIO_FILE = r'E:\vad\1006964305_78675b121ee04a9fa82627a8fa92bf3c_sd\test0chunk-01.wav'  # 只支持 pcm/wav/amr 格式，极速版额外支持m4a 格式

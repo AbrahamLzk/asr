@@ -2,7 +2,8 @@
 import os
 import sys
 import time
-time1=time.time()
+import pynlpir  # 引入依赖包
+
 
 # AC自动机算法
 class node(object):
@@ -97,15 +98,10 @@ class ac_automation(object):
 
 
 if __name__ == '__main__':
-    if os.path.exists(str(sys.argv[1])+'\\search_result.txt'):
-        os.remove(str(sys.argv[1])+'\\search_result.txt')
-    with open(str(sys.argv[1])+'\\search_history.txt', "a", encoding='utf-8') as file:
-        f = open(str(sys.argv[1])+'\\search.txt', mode='r', encoding='utf-8')
-        file.write('搜索记录：\n')
-        file.write(f.read())
-        file.write('\n')
-        f.close()
-        file.close()
+    if os.path.exists(str(sys.argv[1])+'\\sen_words.txt'):
+        os.remove(str(sys.argv[1])+'\\sen_words.txt')
+    if os.path.exists(str(sys.argv[1])+'\\words.txt'):
+        os.remove(str(sys.argv[1])+'\\words.txt')
     with open(str(sys.argv[1])+'\\time_data.txt', "r", encoding='utf-8') as file:
         temp = file.readline()
         print(temp)
@@ -114,35 +110,39 @@ if __name__ == '__main__':
     for i in range(int(temp)):
         text = f.readline()
         if text != '':
-            path=str(sys.argv[1])+'\\search.txt'
-            ah = ac_automation()
-            ah.parse(path)
-            r=ah.words_replace(text)
-            if r.find('*') != -1:
-                word = r.split('.')[1]
-                word = word.split('/')
-                result = ''
-                for s in word:
-                    result += s
-                    result += ' '
-                result.strip()
-                with open(str(sys.argv[1])+'\\search_result.txt', "a", encoding='utf-8') as file:
-                    file.write(result+'在第%s句：\n'%(i+1,))
-                    file.write(text)
-                    file.write('\n')
-                    file.close()
-                with open(str(sys.argv[1])+'\\search_history.txt', "a", encoding='utf-8') as file:
-                    file.write(result+'在第%s句：\n'%(i+1,))
-                    file.write(text)
-                    file.write('\n')
-                    file.close()
+            pynlpir.open()  # 打开分词器
+            #print(pynlpir.segment(text, pos_tagging=False))
+            with open(str(sys.argv[1])+'\\words.txt', "a", encoding='utf-8') as file:
+                for t in pynlpir.segment(text, pos_tagging=False):
+                    if str(t) != '，' and str(t) != '。' and str(t) != '？':
+                        file.write(str(t))
+                        file.write(str(','))
+                file.write('\n')
+                file.close()
+            pynlpir.close()
+            time1=time.time()
+            sensitive = ['色情','反动','暴恐','民生','贪腐','其他']
+            for sen in sensitive:
+                path=os.getcwd()+'\\' +sen+ '.txt'
+                ah = ac_automation()
+                ah.parse(path)
+                r=ah.words_replace(text)
+                if r.find('*') != -1:
+                    word = r.split('.')[1]
+                    word = word.split('/')
+                    result = ''
+                    for s in word:
+                        result += s
+                        result += ' '
+                    result.strip()
+                    with open(str(sys.argv[1])+'\\sen_words.txt', "a", encoding='utf-8') as file:
+                        file.write(result)
+                        file.write(sen+'敏感词'+'，在第%s句：\n'%(i+1,))
+                        file.write(text)
+                        file.write('\n')
+                        file.close()
                 #print(r)
+
     f.close()
-    os.remove(str(sys.argv[1])+'\\search.txt')
     time2 = time.time()
     print('总共耗时：' + str(time2 - time1) + 's')
-    with open(str(sys.argv[1])+'\\search_history.txt', "a", encoding='utf-8') as file:
-        file.write('本次搜索结束')
-        file.write('本次搜索总共耗时：' + str(time2 - time1) + 's')
-        file.write('\n')
-        file.close()
