@@ -9,6 +9,7 @@ import stat
 import shutil
 #from iat_ws_python3 import *
 from tkinter import *
+from tkinter import scrolledtext
 
 
 import vlc
@@ -114,7 +115,7 @@ class Production_Tool(Frame):
         self.bt_stop.grid(row=7, column=2, rowspan=1, sticky=W)
 
 
-        self.text = Text(frame, width=30, height=25, wrap=WORD, bd=4, bg="white")
+        self.text = scrolledtext.ScrolledText(frame, width=30, height=25, wrap=WORD, bd=4, bg="white")
         self.text.grid(row=8, column=2, rowspan=1, sticky=W)
         self.text.insert(END, "请选择视频文件，并进行语音分析")
 
@@ -150,6 +151,9 @@ class Production_Tool(Frame):
         name = name.split('.')[0]
         p = os.getcwd()+'\\'+name
         self.p_path = p
+        if os.path.exists(p+'\\result.txt') and os.path.exists(p+'\\result1.txt') and os.path.exists(p+'\\time_data.txt'):
+            self.text.insert(END, "\n本视频已有语音分析结果，语音分析结果路径:\n"+p)
+            e.set('请输入搜索文本（多个查询词请用/分开）')
         self.play_media(button=self.media, f_path=f)
 
     def speech(self, f=None):
@@ -252,7 +256,7 @@ class Production_Tool(Frame):
             #if os.system("python nlpir_DFA.py %s"%(p,)) == 0:
             if os.system("python nlpir_ac.py %s"%(p,)) == 0:
                 #self.text.delete(END)
-                self.text.insert(END, "\n敏感词审核完成，分词存储位置:\n"+p+"\\words.txt")                
+                self.text.insert(END, "\n敏感词审核完成，分词存储位置:\n"+p+"\\words.txt")               
                 if os.path.exists(p+'\\sen_words.txt'):
                     result = ''
                     with open(p+'\\sen_words.txt', "r", encoding='utf-8') as file:
