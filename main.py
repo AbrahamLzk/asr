@@ -333,7 +333,7 @@ class Production_Tool(Frame):
             return
     def search(self, p=None):
         if os.path.exists(p+'\\result1.txt') and os.path.exists(p+'\\time_data.txt'):
-            self.text.insert(END, "\n正在进行搜索审核，请勿关闭")
+            self.text.insert(END, "\n正在进行搜索，请勿关闭")
             root.update()
             if e.get() != '':
                 text = str(e.get())
