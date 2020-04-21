@@ -246,7 +246,7 @@ class Production_Tool(Frame):
             return
 
     def nlpir(self, p=None):
-        if os.path.exists(p+'\\result1.txt'):
+        if os.path.exists(p+'\\result1.txt') and os.path.exists(p+'\\time_data.txt'):
             self.text.insert(END, "\n正在进行敏感词审核，请勿关闭")
             root.update()
             #if os.system("python nlpir_DFA.py %s"%(p,)) == 0:
@@ -271,7 +271,7 @@ class Production_Tool(Frame):
             return
 
     def subtitles(self, p=None, f=None):
-        if os.path.exists(p+'\\result1.txt'):
+        if os.path.exists(p+'\\result1.txt') and os.path.exists(p+'\\time_data.txt'):
             self.text.insert(END, "\n正在进行字幕生成，请勿关闭")
             root.update()
             if os.system("python srt.py %s"%(p,)) == 0:
@@ -328,7 +328,7 @@ class Production_Tool(Frame):
             tkinter.messagebox.showwarning('提示', '请先进行语音分析')
             return
     def search(self, p=None):
-        if os.path.exists(p+'\\result1.txt'):
+        if os.path.exists(p+'\\result1.txt') and os.path.exists(p+'\\time_data.txt'):
             self.text.insert(END, "\n正在进行搜索审核，请勿关闭")
             root.update()
             if e.get() != '':
