@@ -46,17 +46,18 @@ if __name__ == '__main__':
             if each_char==char_1:
                 tem.append(count-1)
                 #print(each_char,count-1)
-        if len(tem) >= 2:
-            if len(tem)%2 == 0:
-                list0 = list(sentence)
-                list0.insert(tem[int((len(tem)/2)-1)]+1,'\n')
-                sentence = ''.join(list0)
-                #print(sentence)
-            else:
-                list0 = list(sentence)
-                list0.insert(tem[int(((len(tem)+1)/2)-1)]+1,'\n')
-                sentence = ''.join(list0)
-                #print(sentence)        
+        if len(sentence) >= 25:
+            if len(tem) >= 2:
+                if len(tem)%2 == 0:
+                    list0 = list(sentence)
+                    list0.insert(tem[int((len(tem)/2)-1)]+1,'\n')
+                    sentence = ''.join(list0)
+                    #print(sentence)
+                else:
+                    list0 = list(sentence)
+                    list0.insert(tem[int(((len(tem)+1)/2)-1)]+1,'\n')
+                    sentence = ''.join(list0)
+                    #print(sentence)        
         with open(str(sys.argv[1])+'\\subtitles.txt', "a", encoding='utf-8') as file:
             file.write(str(i+1)+'\n'+text_s)
             file.write(' --> ')
