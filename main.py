@@ -132,10 +132,10 @@ class Production_Tool(Frame):
     def pause_media(self, button=None):
         self.pauseFlag = not self.pauseFlag
         if self.pauseFlag:
-            self.bt_pause["text"] = "继  续"
+            self.bt_pause["text"] = "视频继续"
             button.pause()
         else:
-            self.bt_pause["text"] = "暂  停"
+            self.bt_pause["text"] = "视频暂停"
             button.set_pause(0)
 
     def fn_open_file(self):
