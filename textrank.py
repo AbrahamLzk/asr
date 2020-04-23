@@ -152,11 +152,14 @@ if __name__ == '__main__':
     with open(str(sys.argv[1])+'\\keywords.txt', "a", encoding='utf-8') as f:
         i = 0
         f.write('\n标题“' + str(sys.argv[2]) + '”相关词在语音文本中出现次数：\n')
-        for i in range(len(result)):
-            print(result)
-            print(count)
-            f.write(result[i])
-            f.write('：' + str(count[i]) + '次\n')
+        if len(result) == 0:
+            f.write('无')
+        else:
+            for i in range(len(result)):
+                print(result)
+                print(count)
+                f.write(result[i])
+                f.write('：' + str(count[i]) + '次\n')
         f.close()
                
     #for item in tr4w.get_keywords(10, word_min_len=1):
