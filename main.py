@@ -142,23 +142,24 @@ class Production_Tool(Frame):
         try:
             f = tkinter.filedialog.askopenfilename(title="打开视频文件",
                                                    filetypes=[("视频文件", ".mp4 .mp3"), ("All", "*")])
-            self.text.delete(1.0,END)
-            self.text.insert(1.0, "视频路径:\n"+f)
         except:
             self.show_video.insert(END, "\n文件打开失败")
             return False
-        print("File: %s" % f)
-        self.file_path = f
-        name = f.split('/')[-1]
-        name = name.split('.')[0]
-        self.name = name
-        p = os.getcwd()+'\\'+name
-        self.p_path = p
-        if os.path.exists(p+'\\result.txt') and os.path.exists(p+'\\result1.txt') and os.path.exists(p+'\\time_data.txt'):
-            self.text.insert(END, "\n本视频已有语音分析结果，语音分析结果路径:\n"+p)
-            e.set('多个查询词请用/分开')
-        if tkinter.messagebox.askyesno('提示','是否开始播放本视频？') ==True:
-            self.play_media(button=self.media, f_path=f)
+        if f:
+            self.text.delete(1.0,END)
+            self.text.insert(1.0, "视频路径:\n"+f)
+            print("File: %s" % f)
+            self.file_path = f
+            name = f.split('/')[-1]
+            name = name.split('.')[0]
+            self.name = name
+            p = os.getcwd()+'\\'+name
+            self.p_path = p
+            if os.path.exists(p+'\\result.txt') and os.path.exists(p+'\\result1.txt') and os.path.exists(p+'\\time_data.txt'):
+                self.text.insert(END, "\n本视频已有语音分析结果，语音分析结果路径:\n"+p)
+                e.set('多个查询词请用/分开')        
+            if tkinter.messagebox.askyesno('提示','是否开始播放本视频？') ==True:
+                self.play_media(button=self.media, f_path=f)
 
     def speech(self, f=None):
         if f is not '':
