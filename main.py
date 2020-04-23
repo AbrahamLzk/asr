@@ -7,7 +7,6 @@ import tkinter.filedialog
 import tkinter.messagebox
 import stat
 import shutil
-#from iat_ws_python3 import *
 from tkinter import *
 from tkinter import scrolledtext
 
@@ -43,23 +42,29 @@ class Production_Tool(Frame):
         self.lab_tmp = Label(frame1, text="", width=1, fg="black", font=("宋体", 12, "bold"), justify="left")
         self.lab_tmp.grid(row=0, column=0, rowspan=1, sticky=W)
 
-        self.show_video = Text(frame1, width=150, height=40, wrap=WORD, bd=4, bg="white")
-        self.show_video.grid(row=15, column=1, rowspan=1, columnspan=2, sticky=W)
+        self.show_video = Text(frame1, width=150, height=40, wrap=WORD, bd=3, bg="white")
+        self.show_video.grid(row=15, column=1, rowspan=1, columnspan=3, sticky=W)
         self.show_video.insert(END, "等待视频播放")
         self.media = vlc.MediaPlayer()
 
-        global e
-        e = StringVar()
-        self.entry = Entry(frame1, textvariable = e, bd=2, width=118)
-        self.entry.grid(row=16, column=1, rowspan=1, sticky=W)
-        e.set('请先进行语音分析')
+        self.bt_play = Button(frame1, text="视频播放", command=lambda: self.play_button(self.file_path,self.p_path), bd=2,
+                              width=49)
+        self.bt_play.grid(row=16, column=1, rowspan=1, sticky=W)
+        
+        self.bt_pause = Button(frame1, text="视频暂停", command=lambda: self.pause_media(button=self.media), bd=2,
+                               width=48)
+        self.bt_pause.grid(row=16, column=2, rowspan=1, sticky=W)
 
-        self.bt_play = Button(frame1, text="搜  索", command=lambda: self.search(self.p_path), bd=2,
-                              width=30)
-        self.bt_play.grid(row=16, column=2, rowspan=1, sticky=W)
+        self.bt_stop = Button(frame1, text="视频停止", command=lambda: self.stop_play_vlc(), bd=2,
+                              width=49)
+        self.bt_stop.grid(row=16, column=3, rowspan=1, sticky=W)
 
         self.file_path = ''
         self.p_path = ''
+        self.name = ''
+
+        global e
+        e = StringVar()
 
         if "Windows" == platform.system():
             # 主子设备视频播放
@@ -68,55 +73,38 @@ class Production_Tool(Frame):
             print("错误", "不支持此平台！")
             exit(-1)
 
-        # self.bt_play = Button(frame1, text="播  放", command=lambda: self.play_media(button=self.media), bd=3,
-        #                       width=8)
-        # self.bt_play.grid(row=15, column=2, rowspan=2, sticky=N)
-        #
-        # self.bt_pause = Button(frame1, text="暂  停", command=lambda: self.pause_media(button=self.media), bd=3,
-        #                       width=8)
-        # self.bt_pause.grid(row=15, column=2, rowspan=2, sticky=N)
-        #
-        # self.bt_open = Button(frame1, text="打开文件", command=lambda: self.fn_open_file(), bd=3,
-        #                       width=8)
-        # self.bt_open.grid(row=15, column=2, rowspan=2, sticky=E)
-        #
-        # self.bt_stop = Button(frame1, text="停  止", command=lambda: self.stop_play_vlc(), bd=3,
-        #                       width=8)
-        # self.bt_stop.grid(row=15, column=2, rowspan=2, sticky=S)
-
         self.bt_play = Label(frame, text="")
         self.bt_play.grid(row=0, sticky=W)
-        self.bt_play = Button(frame, text="打开文件", command=lambda: self.fn_open_file(), bd=3,
-                              width=30)
+        self.entry = Entry(frame, textvariable = e, bd=2, width=23)
+        self.entry.grid(row=1, column=1, rowspan=1, sticky=W)
+        e.set('请先进行语音分析')
+        self.bt_play = Button(frame, text="搜索", command=lambda: self.search(self.p_path), bd=2,
+                              width=4)
         self.bt_play.grid(row=1, column=2, rowspan=1, sticky=W)
 
-        self.bt_pause = Button(frame, text="视频暂停", command=lambda: self.pause_media(button=self.media), bd=3,
-                               width=30)
-        self.bt_pause.grid(row=2, column=2, rowspan=1, sticky=W)
-
-        self.bt_stop = Button(frame, text="视频停止", command=lambda: self.stop_play_vlc(), bd=3,
+        self.bt_play = Button(frame, text="打开文件", command=lambda: self.fn_open_file(), bd=3,
                               width=30)
-        self.bt_stop.grid(row=3, column=2, rowspan=1, sticky=W)
+        self.bt_play.grid(row=2, column=1, rowspan=1, columnspan=2, sticky=W)
 
         self.bt_open = Button(frame, text="语音分析", command=lambda: self.speech(self.file_path), bd=3,
                               width=30)
-        self.bt_open.grid(row=4, column=2, rowspan=1, sticky=W)
+        self.bt_open.grid(row=3, column=1, rowspan=1, columnspan=2, sticky=W)
 
         self.bt_stop = Button(frame, text="敏感词审核", command=lambda: self.nlpir(self.p_path), bd=3,
                               width=30)
-        self.bt_stop.grid(row=5, column=2, rowspan=1, sticky=W)
+        self.bt_stop.grid(row=4, column=1, rowspan=1, columnspan=2, sticky=W)
 
         self.bt_stop = Button(frame, text="获得知识点", command=lambda: self.textrank(self.p_path), bd=3,
                               width=30)
-        self.bt_stop.grid(row=6, column=2, rowspan=1, sticky=W)
+        self.bt_stop.grid(row=5, column=1, rowspan=1, columnspan=2, sticky=W)
 
         self.bt_stop = Button(frame, text="加入字幕", command=lambda: self.subtitles(self.p_path,self.file_path), bd=3,
                               width=30)
-        self.bt_stop.grid(row=7, column=2, rowspan=1, sticky=W)
+        self.bt_stop.grid(row=6, column=1, rowspan=1, columnspan=2, sticky=W)
 
 
-        self.text = scrolledtext.ScrolledText(frame, width=30, height=25, wrap=WORD, bd=4, bg="white")
-        self.text.grid(row=8, column=2, rowspan=1, sticky=W)
+        self.text = scrolledtext.ScrolledText(frame, width=31, height=28, wrap=WORD, bd=3, bg="white")
+        self.text.grid(row=7, column=1, rowspan=1, columnspan=2, sticky=W)
         self.text.insert(END, "请选择视频文件，并进行语音分析")
 
     def play_media(self, button=None, f_path=None):
@@ -126,6 +114,20 @@ class Production_Tool(Frame):
             button.play()
             self.show_video.delete(0.0, END)
             self.show_video.insert(END, "等待视频播放")
+
+    def play_button(self, f=None, p=None):
+        if f:
+            a = tkinter.messagebox.askyesnocancel('提示','请选择播放视频类型：\n是：播放无字幕视频\n否：播放有字幕视频')
+            if a == True:
+                self.play_media(button=self.media, f_path=f)
+            elif a == False:
+                if os.path.exists(p+'\\final.mp4'):
+                    self.play_media(button=self.media, f_path=p+'\\final.mp4')
+                else:
+                    tkinter.messagebox.showwarning('提示', '请先生成字幕视频')
+        else:
+            tkinter.messagebox.showwarning('提示', '请先选择视频文件')
+
 
     def pause_media(self, button=None):
         self.pauseFlag = not self.pauseFlag
@@ -149,12 +151,14 @@ class Production_Tool(Frame):
         self.file_path = f
         name = f.split('/')[-1]
         name = name.split('.')[0]
+        self.name = name
         p = os.getcwd()+'\\'+name
         self.p_path = p
         if os.path.exists(p+'\\result.txt') and os.path.exists(p+'\\result1.txt') and os.path.exists(p+'\\time_data.txt'):
             self.text.insert(END, "\n本视频已有语音分析结果，语音分析结果路径:\n"+p)
-            e.set('请输入搜索文本（多个查询词请用/分开）')
-        self.play_media(button=self.media, f_path=f)
+            e.set('多个查询词请用/分开')
+        if tkinter.messagebox.askyesno('提示','是否开始播放本视频？') ==True:
+            self.play_media(button=self.media, f_path=f)
 
     def speech(self, f=None):
         if f is not '':
@@ -200,7 +204,7 @@ class Production_Tool(Frame):
                 with open(p+'\\result.txt', "r", encoding='utf-8') as file:
                     result = file.readlines()
                     file.close()
-                e.set('请输入搜索文本（多个查询词请用/分开）')
+                e.set('多个查询词请用/分开')
                 tkinter.messagebox.showinfo('语音识别结果', result)
             else:
                 #self.text.delete(END)
@@ -229,7 +233,7 @@ class Production_Tool(Frame):
         if os.path.exists(p+'\\result.txt'):
             self.text.insert(END, "\n正在进行知识点提取，请勿关闭")
             root.update()
-            if os.system("python textrank.py %s"%(p,)) == 0:
+            if os.system("python textrank.py %s %s"%(p,self.name,)) == 0:
                 #self.text.delete(END)
                 self.text.insert(END, "\n知识点标签提取成功，文档位置:\n"+p+"\\keywords.txt")
                 result = ''
